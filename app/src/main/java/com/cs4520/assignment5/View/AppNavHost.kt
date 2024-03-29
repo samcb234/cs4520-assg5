@@ -5,6 +5,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.cs4520.assignment5.viewmodel.ProductViewModel
 
 enum class Screen {
     LOGIN,
@@ -18,13 +19,14 @@ sealed class NavigationItem(val route: String){
 
 @Composable
 fun appNavHost(modifier: Modifier = Modifier, navController: NavHostController,
-               startDestination: String = NavigationItem.Login.route){
+               startDestination: String = NavigationItem.Login.route,
+               viewModel: ProductViewModel){
     NavHost(navController = navController, startDestination = startDestination){
         composable(NavigationItem.Login.route){
             loginScreen(navController)
         }
         composable(NavigationItem.Product.route){
-            prev()
+            prev(viewModel)
         }
     }
 }

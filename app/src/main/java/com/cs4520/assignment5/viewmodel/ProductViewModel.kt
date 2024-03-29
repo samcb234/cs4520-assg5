@@ -11,6 +11,8 @@ import com.cs4520.assignment5.model.database.ProductRepository
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -29,14 +31,23 @@ class ProductViewModel(private val productRepository: ProductRepository): ViewMo
         .create(APIService::class.java)
 
 
-    private val _loading = MutableLiveData<Boolean>(false)
-    val loading: LiveData<Boolean> = _loading
+//    private val _loading = MutableLiveData<Boolean>(false)
+//    val loading: LiveData<Boolean> = _loading
+//
+//    private val _products = MutableLiveData<List<Product>>()
+//    val products: LiveData<List<Product>> = _products
+//
+//    private val _errorMessage = MutableLiveData<String?>(null)
+//    val errorMessage: LiveData<String?> = _errorMessage
 
-    private val _products = MutableLiveData<List<Product>>()
-    val products: LiveData<List<Product>> = _products
+    private val _loading = MutableStateFlow(false)
+    val loading = _loading.asStateFlow()
 
-    private val _errorMessage = MutableLiveData<String?>(null)
-    val errorMessage: LiveData<String?> = _errorMessage
+    private val _products = MutableStateFlow<List<Product>>(emptyList())
+    val products = _products.asStateFlow()
+
+    private val _errorMessage = MutableStateFlow<String?>(null)
+    val errorMessage = _errorMessage.asStateFlow()
 
      fun refreshProducts(){
          _loading.value = true
