@@ -1,6 +1,9 @@
 package com.cs4520.assignment5.model.database
 
+import android.content.Context
 import androidx.lifecycle.LiveData
+import androidx.work.CoroutineWorker
+import androidx.work.WorkerParameters
 import com.cs4520.assignment5.model.APIResponse
 
 class ProductRepository(private val dao: ProductDao) {
@@ -14,4 +17,7 @@ class ProductRepository(private val dao: ProductDao) {
     }
 
     val products = dao.getAll()
+
+
+
 }

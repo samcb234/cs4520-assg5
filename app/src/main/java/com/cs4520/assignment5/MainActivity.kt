@@ -10,6 +10,7 @@ import androidx.compose.material.Surface
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.compose.rememberNavController
+import androidx.work.WorkManager
 import com.cs4520.assignment5.View.appNavHost
 import com.cs4520.assignment5.databinding.MainActivityBinding
 import com.cs4520.assignment5.model.database.AppDatabase
@@ -32,7 +33,7 @@ class MainActivity: ComponentActivity(){
         val application: Application = requireNotNull(this).application
         val dao: ProductDao = AppDatabase.getDatabase(application).productDao()
         val repository = ProductRepository(dao)
-        val factory = ProductViewModelFactory(repository)
+        val factory = ProductViewModelFactory(repository, WorkManager.getInstance(this))
         viewModel = ViewModelProvider(this, factory).get(ProductViewModel::class.java)
 
         setContent{

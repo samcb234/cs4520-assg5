@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -38,7 +39,7 @@ fun productCard(product: Product){
         Image(painter = painterResource(id =
         if(product.type =="Food") R.drawable.food else R.drawable.equipment),
             contentDescription = "Image of Product",
-            modifier = Modifier.size(70.dp))
+            modifier = Modifier.requiredSize(width = 70.dp, height = 70.dp))
 
         Column {
             Text(text = product.name)
@@ -60,10 +61,6 @@ fun productList(products: List<Product>){
 //@Preview
 @Composable
 fun prev(viewModel: ProductViewModel){
-//    val a: ArrayList<Product> = ArrayList()
-//    a.add(Product.Food("product", "Food", "2020-1-1", 25.0))
-//    a.add(Product.Equipment("product", "Equipment", "2020-1-1", 25.0))
-//    productList(products = a)
 
     val loading by viewModel.loading.collectAsState()
     val errorMessage by viewModel.errorMessage.collectAsState()
