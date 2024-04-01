@@ -24,6 +24,7 @@ class RefreshData(val context: Context, workerParameters: WorkerParameters): Cor
         .create(APIService::class.java)
 
     override suspend fun doWork(): Result = withContext(Dispatchers.IO){
+        println("doWork Called")
         val db = getDatabase(applicationContext)
         val productRepository = ProductRepository(db.productDao())
 

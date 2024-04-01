@@ -8,6 +8,7 @@ import androidx.work.Constraints
 import androidx.work.Data
 import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import com.cs4520.assignment5.model.API.APIService
@@ -25,18 +26,13 @@ import kotlinx.coroutines.launch
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.net.UnknownHostException
+import java.util.concurrent.TimeUnit
 
 class ProductViewModel(private val productRepository: ProductRepository, private val workManager: WorkManager): ViewModel() {
 
     init {
         productRepositoryObserve()
     }
-
-    val retrofit = Retrofit.Builder()
-        .baseUrl(Api.BASE_URL)
-        .addConverterFactory(GsonConverterFactory.create())
-        .build()
-        .create(APIService::class.java)
 
 
     private val _loading = MutableStateFlow(false)
@@ -48,15 +44,17 @@ class ProductViewModel(private val productRepository: ProductRepository, private
     private val _errorMessage = MutableStateFlow<String?>(null)
     val errorMessage = _errorMessage.asStateFlow()
 
+    private var firstCall = true
 
     fun refreshProducts(){
 
+        workManager.cancelAllWork()
         val constraints = Constraints.Builder()
             .setRequiresCharging(false)
             .setRequiredNetworkType(NetworkType.CONNECTED)
             .build()
 
-        val myWorkRequest = OneTimeWorkRequestBuilder<RefreshData>()
+        val myWorkRequest = PeriodicWorkRequestBuilder<RefreshData>(1, TimeUnit.HOURS)
             .setConstraints(constraints)
             .build()
 
@@ -64,8 +62,12 @@ class ProductViewModel(private val productRepository: ProductRepository, private
         workManager.enqueue(myWorkRequest)
 
         workManager.getWorkInfoByIdLiveData(myWorkRequest.id).observeForever { it->
-            if(it.state == WorkInfo.State.RUNNING )
-                println ("running" )
+            if(it.state == WorkInfo.State.RUNNING ){
+                println("running")
+                if(firstCall){
+                    firstCall = false
+                }
+            }
             else if(it.state == WorkInfo.State.FAILED){
                 println("failed")
                 _loading.value = false
@@ -78,50 +80,20 @@ class ProductViewModel(private val productRepository: ProductRepository, private
             }
             else if(it.state == WorkInfo.State.ENQUEUED ){
                 println("enqueued")
-        }
+                if (!firstCall) {
+                    _loading.value = false
+                }
+            }
+            else if(it.state == WorkInfo.State.BLOCKED){
+                println("blocked")
+            }
+            else if (it.state == WorkInfo.State.CANCELLED){
+                println("canceled")
+            }
 
         }
     }
 
-//     fun refreshProducts(){
-//         _loading.value = true
-//         val coroutineExceptionHandler = CoroutineExceptionHandler{_, throwable ->
-//             throwable.printStackTrace()
-//         }
-//
-//        CoroutineScope(Dispatchers.IO + coroutineExceptionHandler).launch {
-//            try{
-//                val response = retrofit.getProducts()
-//                if(response.isSuccessful){
-//                    if(!response.body().isNullOrEmpty()){
-//                        val filteredResponse = response.body()!!.filter {
-//                            if(it.type == "Food"){
-//                                return@filter (it.price != null) && (it.expiryDate != null)
-//                            }
-//                            else{
-//                                return@filter (it.price != null)
-//                            }
-//                        }
-//                        productRepository.insertAll(filteredResponse)
-//                    }
-//                    launch(Dispatchers.Main){
-//                        _errorMessage.value = null
-//                    }
-//                }
-//                else{
-//                    launch(Dispatchers.Main){
-//                        _errorMessage.value = response.message()
-//                    }
-//                }
-//            } catch (e: UnknownHostException){
-//                println("no internet")
-//            }
-//
-//            launch(Dispatchers.Main){
-//                _loading.value = false
-//            }
-//        }
-//     }
 
     private fun convertToSealed(startList: List<APIResponse>?): List<Product>{
         if(startList == null){

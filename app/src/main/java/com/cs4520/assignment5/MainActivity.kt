@@ -4,7 +4,6 @@ import android.app.Application
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.Surface
 import androidx.compose.ui.Modifier
@@ -27,9 +26,6 @@ class MainActivity: ComponentActivity(){
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-//        binding = MainActivityBinding.inflate(layoutInflater)
-//        val view = binding.root
-//        setContentView(view)
         val application: Application = requireNotNull(this).application
         val dao: ProductDao = AppDatabase.getDatabase(application).productDao()
         val repository = ProductRepository(dao)
